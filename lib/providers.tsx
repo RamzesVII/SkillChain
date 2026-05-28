@@ -17,26 +17,26 @@ const queryClient = new QueryClient()
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <PrivyProvider
-      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
-      config={{
-        loginMethods: ["email", "wallet", "google", "twitter"],
-        appearance: {
-          theme: "dark",
-          accentColor: "#7c3aed",
-        },
-        defaultChain: aeneid,
-        supportedChains: [aeneid],
-        embeddedWallets: {
-          ethereum: { createOnLogin: "users-without-wallets" },
-        },
-      }}
-    >
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <PrivyProvider
+        appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
+        config={{
+          loginMethods: ["email", "wallet", "google", "twitter"],
+          appearance: {
+            theme: "dark",
+            accentColor: "#7c3aed",
+          },
+          defaultChain: aeneid,
+          supportedChains: [aeneid],
+          embeddedWallets: {
+            ethereum: { createOnLogin: "users-without-wallets" },
+          },
+        }}
+      >
+        <WagmiProvider config={wagmiConfig}>
           {children}
-        </QueryClientProvider>
-      </WagmiProvider>
-    </PrivyProvider>
+        </WagmiProvider>
+      </PrivyProvider>
+    </QueryClientProvider>
   )
 }

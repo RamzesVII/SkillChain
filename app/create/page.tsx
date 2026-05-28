@@ -8,6 +8,11 @@ import { useRouter } from "next/navigation"
 const CATEGORIES = ["DeFi", "Trading", "Dev", "Research", "Growth", "Predictions"]
 const CONTENT_TYPES = ["markdown", "pdf", "video", "image", "text"] as const
 
+const inputClass =
+  "w-full bg-paper border border-rule rounded-xl px-4 py-2.5 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-accent transition-colors"
+
+const labelClass = "block text-xs font-medium text-ink-2 uppercase tracking-wider mb-1.5"
+
 export default function CreatePage() {
   const { authenticated, user, login } = usePrivy()
   const router = useRouter()
@@ -36,9 +41,7 @@ export default function CreatePage() {
       Object.entries(form).forEach(([k, v]) => formData.append(k, v))
       formData.append("creator_address", user.wallet.address)
 
-      if (form.content_type === "markdown") {
-        formData.append("content", content)
-      } else if (form.content_type === "text") {
+      if (form.content_type === "markdown" || form.content_type === "text") {
         formData.append("content", content)
       } else if (file) {
         formData.append("file", file)
@@ -58,12 +61,16 @@ export default function CreatePage() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-zinc-950">
+      <div className="min-h-screen bg-canvas">
         <Navbar />
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-          <p className="text-zinc-400">Connect your wallet to create a block</p>
-          <button onClick={login} className="px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-lg font-medium">
-            Connect
+          <p className="font-display text-2xl font-semibold text-ink">Publish your knowledge.</p>
+          <p className="text-ink-3 text-sm">Connect your wallet to create a block.</p>
+          <button
+            onClick={login}
+            className="mt-2 px-6 py-3 bg-accent hover:bg-accent-hover text-paper rounded-full font-medium text-sm transition-colors"
+          >
+            Connect wallet
           </button>
         </div>
       </div>
@@ -71,124 +78,153 @@ export default function CreatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-canvas">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-6 py-8">
-        <h1 className="text-white text-2xl font-bold mb-6">Create Knowledge Block</h1>
+      <main className="max-w-2xl mx-auto px-6 py-10">
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-zinc-400 text-sm">Creator name</label>
-            <input
-              value={form.creator_name}
-              onChange={(e) => setForm({ ...form, creator_name: e.target.value })}
-              placeholder="Your name or alias"
-              className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500"
-            />
-          </div>
+        <div className="mb-8">
+          <p className="text-xs font-medium text-ink-3 tracking-widest uppercase mb-2">Creator</p>
+          <h1 className="font-display text-4xl font-semibold text-ink">New block</h1>
+        </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-zinc-400 text-sm">Title *</label>
-            <input
-              required
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="e.g. How Uniswap V3 liquidity works"
-              className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-zinc-400 text-sm">Preview text * <span className="text-zinc-600">(public teaser — hook the reader)</span></label>
-            <textarea
-              required
-              rows={3}
-              value={form.preview_text}
-              onChange={(e) => setForm({ ...form, preview_text: e.target.value })}
-              placeholder="2-3 sentences that make someone want to buy this block..."
-              className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 resize-none"
-            />
-          </div>
+          {/* Identity */}
+          <section className="flex flex-col gap-5">
+            <div>
+              <label className={labelClass}>Your name</label>
+              <input
+                value={form.creator_name}
+                onChange={(e) => setForm({ ...form, creator_name: e.target.value })}
+                placeholder="Name or alias"
+                className={inputClass}
+              />
+            </div>
 
-          <div className="flex gap-4">
-            <div className="flex flex-col gap-1.5 flex-1">
-              <label className="text-zinc-400 text-sm">Category</label>
+            <div>
+              <label className={labelClass}>Title *</label>
+              <input
+                required
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                placeholder="e.g. How Uniswap V3 liquidity works"
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>
+                Preview <span className="normal-case font-normal text-ink-3 tracking-normal">— public teaser, hook the reader</span>
+              </label>
+              <textarea
+                required
+                rows={3}
+                value={form.preview_text}
+                onChange={(e) => setForm({ ...form, preview_text: e.target.value })}
+                placeholder="2–3 sentences that make someone want to buy this block…"
+                className={`${inputClass} resize-none`}
+              />
+            </div>
+          </section>
+
+          <div className="h-px bg-rule-faint" />
+
+          {/* Metadata */}
+          <section className="flex gap-4">
+            <div className="flex-1">
+              <label className={labelClass}>Category</label>
               <select
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500"
+                className={inputClass}
               >
                 {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
               </select>
             </div>
 
-            <div className="flex flex-col gap-1.5 flex-1">
-              <label className="text-zinc-400 text-sm">Price (IP tokens)</label>
+            <div className="w-36">
+              <label className={labelClass}>Price (IP)</label>
               <input
                 type="number"
                 min="0.01"
                 step="0.01"
                 value={form.price_ip}
                 onChange={(e) => setForm({ ...form, price_ip: e.target.value.replace(",", ".") })}
-                className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500"
+                className={`${inputClass} font-mono tabular`}
               />
             </div>
-          </div>
+          </section>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-zinc-400 text-sm">Content type</label>
-            <div className="flex gap-2">
-              {CONTENT_TYPES.map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setForm({ ...form, content_type: t })}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    form.content_type === t
-                      ? "bg-violet-600 text-white"
-                      : "bg-zinc-800 text-zinc-400 hover:text-zinc-200"
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
+          <div className="h-px bg-rule-faint" />
+
+          {/* Content */}
+          <section className="flex flex-col gap-4">
+            <div>
+              <label className={labelClass}>Content type</label>
+              <div className="flex gap-1.5 flex-wrap">
+                {CONTENT_TYPES.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setForm({ ...form, content_type: t })}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      form.content_type === t
+                        ? "bg-ink text-paper"
+                        : "border border-rule text-ink-2 hover:text-ink"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-zinc-400 text-sm">Full content * <span className="text-zinc-600">(CDR-encrypted — only buyers will see this)</span></label>
-            {(form.content_type === "markdown" || form.content_type === "text") ? (
-              <textarea
-                required
-                rows={8}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={form.content_type === "markdown" ? "Write your full content in markdown..." : "Write your text content..."}
-                className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 resize-none font-mono"
-              />
-            ) : (
-              <input
-                type="file"
-                accept={
-                  form.content_type === "pdf" ? ".pdf" :
-                  form.content_type === "image" ? "image/*" :
-                  "video/*"
-                }
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-zinc-400 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-violet-600 file:text-white file:text-xs cursor-pointer"
-              />
-            )}
-          </div>
+            <div>
+              <label className={labelClass}>
+                Full content * <span className="normal-case font-normal text-ink-3 tracking-normal">— CDR-encrypted, only buyers see this</span>
+              </label>
+              {(form.content_type === "markdown" || form.content_type === "text") ? (
+                <textarea
+                  required
+                  rows={10}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder={
+                    form.content_type === "markdown"
+                      ? "Write in markdown…"
+                      : "Write your content…"
+                  }
+                  className={`${inputClass} resize-none font-mono text-xs leading-relaxed`}
+                />
+              ) : (
+                <input
+                  type="file"
+                  accept={
+                    form.content_type === "pdf" ? ".pdf" :
+                    form.content_type === "image" ? "image/*" :
+                    "video/*"
+                  }
+                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                  className="w-full text-sm text-ink-2 file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border file:border-rule file:text-ink file:text-xs file:font-medium file:bg-canvas cursor-pointer"
+                />
+              )}
+            </div>
+          </section>
 
-          {error && <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-3">{error}</p>}
+          {error && (
+            <p className="text-sm text-[oklch(0.50_0.18_25)] bg-[oklch(0.97_0.03_25)] border border-[oklch(0.88_0.06_25)] rounded-xl px-4 py-3">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white rounded-lg font-medium transition-colors"
+            className="w-full py-3 bg-accent hover:bg-accent-hover disabled:bg-rule text-paper disabled:text-ink-3 rounded-xl font-medium text-sm transition-colors"
           >
-            {loading ? "Uploading to Story & CDR..." : "Publish Block"}
+            {loading ? "Publishing to Story & CDR…" : "Publish block"}
           </button>
+
         </form>
       </main>
     </div>

@@ -36,10 +36,10 @@ export default function BundlePage() {
 
       for (let i = 0; i < items.length; i++) {
         const block = items[i]
-        setStep(`Minting license ${i + 1}/${items.length}: ${block.title}`)
+        setStep(`Minting license ${i + 1} of ${items.length}`)
 
         if (!block.ip_id || !block.license_terms_id) {
-          throw new Error(`Block "${block.title}" is not registered on Story`)
+          throw new Error(`"${block.title}" is not registered on Story`)
         }
 
         const result = await storyClient.license.mintLicenseTokens({
@@ -60,7 +60,7 @@ export default function BundlePage() {
         })
       }
 
-      setStep("Saving purchases...")
+      setStep("Saving purchases…")
       const res = await fetch("/api/record-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,64 +80,105 @@ export default function BundlePage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-canvas">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-6 py-8">
-        <h1 className="text-white text-2xl font-bold mb-6">Your Bundle</h1>
+      <main className="max-w-5xl mx-auto px-6 py-10">
+
+        <div className="mb-8">
+          <p className="text-xs font-medium text-ink-3 tracking-widest uppercase mb-2">Checkout</p>
+          <h1 className="font-display text-4xl font-semibold text-ink">Your Bundle</h1>
+        </div>
 
         {items.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-zinc-500">Your bundle is empty.</p>
-            <a href="/" className="mt-4 inline-block px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm">
+          <div className="text-center py-32">
+            <p className="font-display text-2xl font-semibold text-ink mb-2">Bundle is empty.</p>
+            <p className="text-ink-3 text-sm mb-6">Browse blocks and add them to your bundle.</p>
+            <a
+              href="/"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-paper rounded-full text-sm font-medium transition-colors"
+            >
               Browse blocks
             </a>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
-            {items.map((block) => (
-              <div key={block.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <p className="text-white font-medium">{block.title}</p>
-                  <p className="text-zinc-500 text-sm mt-0.5">
-                    {block.creator_name || `${block.creator_address.slice(0, 8)}...`} · {block.category}
-                  </p>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
+
+            {/* Block list */}
+            <div className="flex flex-col gap-3">
+              {items.map((block, i) => (
+                <div
+                  key={block.id}
+                  className="bg-paper border border-rule rounded-2xl px-5 py-4 flex items-start gap-4"
+                >
+                  <span className="font-mono text-ink-3 text-sm tabular mt-0.5 w-5 shrink-0">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display font-semibold text-ink leading-snug">{block.title}</p>
+                    <p className="text-ink-3 text-xs mt-0.5">
+                      {block.creator_name || `${block.creator_address.slice(0, 8)}…`} · {block.category}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="font-mono text-sm font-medium text-ink tabular">{block.price_ip} IP</span>
+                    <button
+                      onClick={() => remove(block.id)}
+                      aria-label="Remove"
+                      className="text-ink-3 hover:text-[oklch(0.55_0.18_25)] transition-colors text-xs p-1"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-zinc-300 font-medium">{block.price_ip} IP</span>
-                  <button onClick={() => remove(block.id)} className="text-zinc-600 hover:text-red-400 transition-colors text-sm">✕</button>
-                </div>
+              ))}
+            </div>
+
+            {/* Sticky summary */}
+            <div className="lg:sticky lg:top-24 bg-paper border border-rule rounded-2xl p-6 flex flex-col gap-4">
+              <div>
+                <p className="text-xs text-ink-3 uppercase tracking-widest font-medium mb-1">Total</p>
+                <p className="font-mono text-3xl font-semibold text-ink tabular">
+                  {total().toFixed(3)} <span className="text-ink-3 text-lg">IP</span>
+                </p>
               </div>
-            ))}
 
-            <div className="border-t border-zinc-800 pt-4 flex items-center justify-between">
-              <span className="text-zinc-400">Total</span>
-              <span className="text-white font-bold text-lg">{total().toFixed(3)} IP</span>
+              <div className="border-t border-rule-faint pt-4 flex flex-col gap-1 text-xs text-ink-3">
+                <p>{items.length} license transaction{items.length > 1 ? "s" : ""}</p>
+                <p>Story routes royalties to each creator</p>
+              </div>
+
+              {error && (
+                <p className="text-sm text-[oklch(0.50_0.18_25)] bg-[oklch(0.97_0.03_25)] border border-[oklch(0.88_0.06_25)] rounded-xl px-4 py-3">
+                  {error}
+                </p>
+              )}
+
+              {step && (
+                <p className="text-xs text-accent">{step}</p>
+              )}
+
+              {!authenticated ? (
+                <button
+                  onClick={login}
+                  className="w-full py-3 bg-accent hover:bg-accent-hover text-paper rounded-xl font-medium text-sm transition-colors"
+                >
+                  Connect to purchase
+                </button>
+              ) : (
+                <button
+                  onClick={handlePurchase}
+                  disabled={loading || !walletClient}
+                  className="w-full py-3 bg-accent hover:bg-accent-hover disabled:bg-rule text-paper disabled:text-ink-3 rounded-xl font-medium text-sm transition-colors"
+                >
+                  {loading
+                    ? step || "Processing…"
+                    : `Pay ${total().toFixed(3)} IP · Unlock ${items.length} block${items.length > 1 ? "s" : ""}`}
+                </button>
+              )}
+
+              {authenticated && !walletClient && (
+                <p className="text-ink-3 text-xs text-center">Wallet not connected — reload and reconnect</p>
+              )}
             </div>
 
-            <div className="bg-zinc-800/50 rounded-lg px-4 py-3 text-zinc-400 text-xs">
-              Your wallet will sign {items.length} transaction{items.length > 1 ? "s" : ""} — one per block. Story Protocol routes royalties directly to creators.
-            </div>
-
-            {error && <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-3">{error}</p>}
-            {step && <p className="text-violet-400 text-sm">{step}</p>}
-
-            {!authenticated ? (
-              <button onClick={login} className="w-full py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-lg font-medium">
-                Connect to purchase
-              </button>
-            ) : (
-              <button
-                onClick={handlePurchase}
-                disabled={loading || !walletClient}
-                className="w-full py-3 bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white rounded-lg font-medium transition-colors"
-              >
-                {loading ? step || "Processing..." : `Pay ${total().toFixed(3)} IP → Unlock ${items.length} block${items.length > 1 ? "s" : ""}`}
-              </button>
-            )}
-
-            {authenticated && !walletClient && (
-              <p className="text-zinc-500 text-xs text-center">Wallet not connected — reload and reconnect</p>
-            )}
           </div>
         )}
       </main>

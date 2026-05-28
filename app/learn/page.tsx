@@ -8,6 +8,14 @@ import { ContentViewer } from "@/components/ContentViewer"
 
 type PurchaseWithBlock = Purchase & { blocks: Block }
 
+const CONTENT_TYPE_LABELS: Record<string, string> = {
+  markdown: "md",
+  text: "txt",
+  pdf: "pdf",
+  video: "mp4",
+  image: "img",
+}
+
 export default function LearnPage() {
   const { authenticated, user, login } = usePrivy()
   const [purchases, setPurchases] = useState<PurchaseWithBlock[]>([])
@@ -27,12 +35,16 @@ export default function LearnPage() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-zinc-950">
+      <div className="min-h-screen bg-canvas">
         <Navbar />
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-          <p className="text-zinc-400">Connect to see your purchased skills</p>
-          <button onClick={login} className="px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-lg font-medium">
-            Connect
+          <p className="font-display text-2xl font-semibold text-ink">Your library.</p>
+          <p className="text-ink-3 text-sm">Connect to see your purchased blocks.</p>
+          <button
+            onClick={login}
+            className="mt-2 px-6 py-3 bg-accent hover:bg-accent-hover text-paper rounded-full font-medium text-sm transition-colors"
+          >
+            Connect wallet
           </button>
         </div>
       </div>
@@ -40,46 +52,73 @@ export default function LearnPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-canvas">
       <Navbar />
-      <main className="max-w-5xl mx-auto px-6 py-8">
-        <h1 className="text-white text-2xl font-bold mb-6">My Skills</h1>
+      <main className="max-w-5xl mx-auto px-6 py-10">
+
+        <div className="mb-8">
+          <p className="text-xs font-medium text-ink-3 tracking-widest uppercase mb-2">Library</p>
+          <h1 className="font-display text-4xl font-semibold text-ink">My blocks</h1>
+        </div>
 
         {loading ? (
-          <p className="text-zinc-500">Loading...</p>
+          <div className="flex flex-col gap-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-16 rounded-xl bg-rule-faint animate-pulse" />
+            ))}
+          </div>
         ) : purchases.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-zinc-500">No purchased skills yet.</p>
-            <a href="/" className="mt-4 inline-block px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm">
+          <div className="text-center py-32">
+            <p className="font-display text-2xl font-semibold text-ink mb-2">No blocks yet.</p>
+            <p className="text-ink-3 text-sm mb-6">Browse and bundle knowledge blocks to get started.</p>
+            <a
+              href="/"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-paper rounded-full text-sm font-medium transition-colors"
+            >
               Browse blocks
             </a>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="flex flex-col gap-3">
-              {purchases.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => setActiveBlock(p)}
-                  className={`text-left bg-zinc-900 border rounded-xl p-4 transition-colors ${
-                    activeBlock?.id === p.id ? "border-violet-500" : "border-zinc-800 hover:border-zinc-700"
-                  }`}
-                >
-                  <p className="text-white font-medium text-sm">{p.blocks.title}</p>
-                  <p className="text-zinc-500 text-xs mt-1">{p.blocks.category} · {p.blocks.content_type}</p>
-                </button>
-              ))}
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 items-start">
+
+            {/* Sidebar */}
+            <div className="flex flex-col gap-1">
+              {purchases.map((p) => {
+                const isActive = activeBlock?.id === p.id
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => setActiveBlock(p)}
+                    className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
+                      isActive
+                        ? "bg-accent-dim text-ink"
+                        : "text-ink-2 hover:bg-rule-faint hover:text-ink"
+                    }`}
+                  >
+                    <p className={`text-sm font-medium leading-snug line-clamp-2 ${isActive ? "text-ink" : ""}`}>
+                      {p.blocks.title}
+                    </p>
+                    <p className="text-ink-3 text-xs mt-0.5 flex items-center gap-1.5">
+                      <span>{p.blocks.category}</span>
+                      <span>·</span>
+                      <span className="font-mono">{CONTENT_TYPE_LABELS[p.blocks.content_type] ?? p.blocks.content_type}</span>
+                    </p>
+                  </button>
+                )
+              })}
             </div>
 
-            <div className="lg:col-span-2">
+            {/* Content viewer */}
+            <div>
               {activeBlock ? (
                 <ContentViewer purchase={activeBlock} />
               ) : (
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl h-64 flex items-center justify-center">
-                  <p className="text-zinc-500">Select a block to view content</p>
+                <div className="bg-paper border border-rule rounded-2xl h-64 flex items-center justify-center">
+                  <p className="text-ink-3 text-sm">Select a block to read</p>
                 </div>
               )}
             </div>
+
           </div>
         )}
       </main>

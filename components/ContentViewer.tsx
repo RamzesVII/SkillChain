@@ -4,13 +4,21 @@ import { useEffect, useState } from "react"
 import { useWalletClient, usePublicClient } from "wagmi"
 import { CDRClient } from "@piplabs/cdr-sdk"
 import { encodeAbiParameters } from "viem"
-import { SupabaseStorageProvider } from "@/lib/cdr"
-import { STORY_CDR_API_URL, STORY_RPC_URL } from "@/lib/constants"
+import { STORY_CDR_API_URL } from "@/lib/constants"
 import type { Block, Purchase } from "@/lib/supabase"
 import { createClient } from "@supabase/supabase-js"
 
 type Props = {
   purchase: Purchase & { blocks: Block }
+}
+
+function UnlockIcon() {
+  return (
+    <svg width="16" height="18" viewBox="0 0 16 18" fill="none" aria-hidden>
+      <rect x="1" y="8" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M5 8V6a3 3 0 0 1 6 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
 }
 
 export function ContentViewer({ purchase }: Props) {
@@ -84,38 +92,50 @@ export function ContentViewer({ purchase }: Props) {
 
   if (!content) {
     return (
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col items-center justify-center gap-4 min-h-64">
-        <div className="text-center">
-          <p className="text-white font-semibold">{block.title}</p>
-          <p className="text-zinc-500 text-sm mt-1">{block.category} · {block.content_type}</p>
+      <div className="bg-paper border border-rule rounded-2xl p-8 flex flex-col items-center gap-5 min-h-64 justify-center text-center">
+        <div>
+          <p className="font-display font-semibold text-ink text-lg">{block.title}</p>
+          <p className="text-ink-3 text-sm mt-1">{block.category} · {block.content_type}</p>
         </div>
-        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+        {error && (
+          <p className="text-sm text-[oklch(0.50_0.18_25)] max-w-sm">{error}</p>
+        )}
         <button
           onClick={unlock}
           disabled={loading || !walletClient}
-          className="px-6 py-3 bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white rounded-lg font-medium transition-colors"
+          className="flex items-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover disabled:bg-rule text-paper disabled:text-ink-3 rounded-full font-medium text-sm transition-colors"
         >
-          {loading ? "Decrypting via CDR..." : "🔓 Unlock Content"}
+          <UnlockIcon />
+          {loading ? "Decrypting via CDR…" : "Unlock content"}
         </button>
-        {!walletClient && <p className="text-zinc-600 text-xs">Wallet not connected</p>}
+        {!walletClient && (
+          <p className="text-ink-3 text-xs">Wallet not connected</p>
+        )}
       </div>
     )
   }
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-      <h2 className="text-white font-semibold mb-4">{block.title}</h2>
+    <div className="bg-paper border border-rule rounded-2xl p-6">
+      <h2 className="font-display font-semibold text-ink text-xl mb-5">{block.title}</h2>
       {block.content_type === "markdown" && (
-        <div className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap">{content}</div>
+        <div className="text-ink-2 text-sm leading-relaxed whitespace-pre-wrap max-w-prose">
+          {content}
+        </div>
+      )}
+      {block.content_type === "text" && (
+        <div className="text-ink-2 text-sm leading-relaxed whitespace-pre-wrap max-w-prose">
+          {content}
+        </div>
       )}
       {block.content_type === "pdf" && (
-        <iframe src={content} className="w-full h-96 rounded-lg" />
+        <iframe src={content} className="w-full h-[600px] rounded-xl border border-rule-faint" />
       )}
       {block.content_type === "video" && (
-        <video src={content} controls className="w-full rounded-lg" />
+        <video src={content} controls className="w-full rounded-xl" />
       )}
       {block.content_type === "image" && (
-        <img src={content} alt={block.title} className="w-full rounded-lg" />
+        <img src={content} alt={block.title} className="w-full rounded-xl" />
       )}
     </div>
   )

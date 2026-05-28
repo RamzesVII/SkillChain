@@ -1,4 +1,4 @@
-import { StoryClient, PILFlavor, WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk"
+import { StoryClient, PILFlavor, WIP_TOKEN_ADDRESS, NativeRoyaltyPolicy } from "@story-protocol/core-sdk"
 import { http } from "viem"
 import { privateKeyToAccount } from "viem/accounts"
 import { parseEther } from "viem"
@@ -43,7 +43,7 @@ export async function registerBlock(params: {
         terms: PILFlavor.commercialUse({
           defaultMintingFee: mintingFee,
           currency: WIP_TOKEN_ADDRESS,
-          royaltyPolicy: "LAP",
+          royaltyPolicy: NativeRoyaltyPolicy.LAP,
         }),
       },
     ],
@@ -51,7 +51,7 @@ export async function registerBlock(params: {
       ipMetadataURI: `https://learngraph.xyz/block/${params.title}`,
     },
     allowDuplicates: true,
-    txOptions: { waitForTransaction: true },
+    txOptions: {},
   })
 
   if (!result.ipId || !result.licenseTermsIds?.[0] || !result.tokenId) {
@@ -86,7 +86,7 @@ export async function mintLicenseForBlock(params: {
     receiver: params.receiverAddress,
     amount: 1,
     maxMintingFee: mintingFee,
-    txOptions: { waitForTransaction: true },
+    txOptions: {},
   })
 
   if (!result.licenseTokenIds?.[0]) {

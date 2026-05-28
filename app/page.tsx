@@ -3,7 +3,7 @@ import { BlockCard } from "@/components/BlockCard"
 import { Navbar } from "@/components/Navbar"
 import type { Block } from "@/lib/supabase"
 
-const CATEGORIES = ["All", "DeFi", "Trading", "Dev", "Research", "Growth"]
+const CATEGORIES = ["All", "DeFi", "Trading", "Dev", "Research", "Growth", "Predictions"]
 
 export default async function Home({
   searchParams,

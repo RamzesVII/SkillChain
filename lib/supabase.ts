@@ -16,6 +16,7 @@ export function createAdminClient() {
 export type Block = {
   id: string
   creator_address: string
+  creator_name: string
   title: string
   preview_text: string
   preview_image_url: string | null
@@ -24,7 +25,7 @@ export type Block = {
   ip_id: string | null
   license_terms_id: string | null
   cdr_uuid: number | null
-  content_type: "video" | "pdf" | "markdown"
+  content_type: "video" | "pdf" | "markdown" | "image" | "text"
   is_verified: boolean
   created_at: string
 }

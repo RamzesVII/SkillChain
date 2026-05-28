@@ -6,6 +6,6 @@ export const CDR_CONTRACTS = {
   SPG_NFT_CONTRACT: "0xc32A8a0FF3beDDDa58393d022aF433e78739FAbc" as `0x${string}`,
 } as const
 
-export const STORY_CDR_API_URL = "https://aeneid.storyrpc.io:1317"
+export const STORY_CDR_API_URL = process.env.STORY_CDR_API_URL || "http://172.192.41.96:1317"
 export const STORY_RPC_URL = process.env.STORY_RPC_URL || "https://aeneid.storyrpc.io"
 export const AENEID_CHAIN_ID = 1513

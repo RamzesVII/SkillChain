@@ -5,8 +5,8 @@ import { usePrivy } from "@privy-io/react-auth"
 import { Navbar } from "@/components/Navbar"
 import { useRouter } from "next/navigation"
 
-const CATEGORIES = ["DeFi", "Trading", "Dev", "Research", "Growth"]
-const CONTENT_TYPES = ["markdown", "pdf", "video"] as const
+const CATEGORIES = ["DeFi", "Trading", "Dev", "Research", "Growth", "Predictions"]
+const CONTENT_TYPES = ["markdown", "pdf", "video", "image", "text"] as const
 
 export default function CreatePage() {
   const { authenticated, user, login } = usePrivy()
@@ -37,6 +37,8 @@ export default function CreatePage() {
       formData.append("creator_address", user.wallet.address)
 
       if (form.content_type === "markdown") {
+        formData.append("content", content)
+      } else if (form.content_type === "text") {
         formData.append("content", content)
       } else if (file) {
         formData.append("file", file)
@@ -127,7 +129,7 @@ export default function CreatePage() {
                 min="0.01"
                 step="0.01"
                 value={form.price_ip}
-                onChange={(e) => setForm({ ...form, price_ip: e.target.value })}
+                onChange={(e) => setForm({ ...form, price_ip: e.target.value.replace(",", ".") })}
                 className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500"
               />
             </div>
@@ -155,19 +157,23 @@ export default function CreatePage() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-zinc-400 text-sm">Full content * <span className="text-zinc-600">(CDR-encrypted — only buyers will see this)</span></label>
-            {form.content_type === "markdown" ? (
+            {(form.content_type === "markdown" || form.content_type === "text") ? (
               <textarea
                 required
                 rows={8}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Write your full content in markdown..."
+                placeholder={form.content_type === "markdown" ? "Write your full content in markdown..." : "Write your text content..."}
                 className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 resize-none font-mono"
               />
             ) : (
               <input
                 type="file"
-                accept={form.content_type === "pdf" ? ".pdf" : "video/*"}
+                accept={
+                  form.content_type === "pdf" ? ".pdf" :
+                  form.content_type === "image" ? "image/*" :
+                  "video/*"
+                }
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                 className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-zinc-400 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-violet-600 file:text-white file:text-xs cursor-pointer"
               />

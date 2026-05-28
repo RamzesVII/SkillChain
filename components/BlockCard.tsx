@@ -9,6 +9,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   Dev: "bg-orange-500/20 text-orange-300",
   Research: "bg-purple-500/20 text-purple-300",
   Growth: "bg-pink-500/20 text-pink-300",
+  Predictions: "bg-yellow-500/20 text-yellow-300",
 }
 
 export function BlockCard({ block }: { block: Block }) {

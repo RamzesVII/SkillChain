@@ -61,13 +61,16 @@ export function ContentViewer({ purchase }: Props) {
         storageProvider,
       })
 
-      if (block.content_type === "markdown") {
+      if (block.content_type === "markdown" || block.content_type === "text") {
         setContent(new TextDecoder().decode(bytes))
       } else if (block.content_type === "pdf") {
-        const blob = new Blob([bytes], { type: "application/pdf" })
+        const blob = new Blob([bytes.buffer as ArrayBuffer], { type: "application/pdf" })
         setContent(URL.createObjectURL(blob))
       } else if (block.content_type === "video") {
-        const blob = new Blob([bytes], { type: "video/mp4" })
+        const blob = new Blob([bytes.buffer as ArrayBuffer], { type: "video/mp4" })
+        setContent(URL.createObjectURL(blob))
+      } else if (block.content_type === "image") {
+        const blob = new Blob([bytes.buffer as ArrayBuffer], { type: "image/jpeg" })
         setContent(URL.createObjectURL(blob))
       }
     } catch (err: unknown) {
@@ -110,6 +113,9 @@ export function ContentViewer({ purchase }: Props) {
       )}
       {block.content_type === "video" && (
         <video src={content} controls className="w-full rounded-lg" />
+      )}
+      {block.content_type === "image" && (
+        <img src={content} alt={block.title} className="w-full rounded-lg" />
       )}
     </div>
   )

@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
+import { initWasm } from "@piplabs/cdr-crypto"
 import { createAdminClient } from "@/lib/supabase"
 import { registerBlock } from "@/lib/story"
 import { uploadBlockContent } from "@/lib/cdr"
 
 export async function POST(req: NextRequest) {
   try {
+    await initWasm()
     const formData = await req.formData()
 
     const title = formData.get("title") as string

@@ -79,104 +79,88 @@ export default function BundlePage() {
     }
   }
 
+  const fee = total() * 0.025
+
   return (
     <div className="min-h-screen bg-canvas">
       <Navbar />
-      <main className="max-w-5xl mx-auto px-6 py-10">
+      <main className="max-w-5xl mx-auto px-6 py-8">
 
         <div className="mb-8">
-          <p className="text-xs font-medium text-ink-3 tracking-widest uppercase mb-2">Checkout</p>
-          <h1 className="font-display text-4xl font-semibold text-ink">Your Bundle</h1>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-ink-3 mb-1">Checkout</p>
+          <h1 className="font-display italic text-3xl text-ink">Current Bundle</h1>
         </div>
 
         {items.length === 0 ? (
           <div className="text-center py-32">
-            <p className="font-display text-2xl font-semibold text-ink mb-2">Bundle is empty.</p>
-            <p className="text-ink-3 text-sm mb-6">Browse blocks and add them to your bundle.</p>
-            <a
-              href="/"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-paper rounded-full text-sm font-medium transition-colors"
-            >
+            <h2 className="font-display italic text-2xl text-ink mb-2">Bundle is empty.</h2>
+            <p className="font-mono text-[10px] text-ink-3 uppercase tracking-widest mb-6">Add blocks to get started</p>
+            <a href="/" className="px-6 py-2 border border-rule text-ink text-[11px] font-bold uppercase tracking-widest hover:border-ink transition-colors">
               Browse blocks
             </a>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
 
-            {/* Block list */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-px bg-rule-faint">
               {items.map((block, i) => (
-                <div
-                  key={block.id}
-                  className="bg-paper border border-rule rounded-2xl px-5 py-4 flex items-start gap-4"
-                >
-                  <span className="font-mono text-ink-3 text-sm tabular mt-0.5 w-5 shrink-0">{i + 1}</span>
+                <div key={block.id} className="bg-canvas px-5 py-4 flex items-start gap-4">
+                  <span className="font-mono text-[10px] text-ink-3 tabular mt-0.5 w-5 shrink-0">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <div className="flex-1 min-w-0">
-                    <p className="font-display font-semibold text-ink leading-snug">{block.title}</p>
-                    <p className="text-ink-3 text-xs mt-0.5">
-                      {block.creator_name || `${block.creator_address.slice(0, 8)}…`} · {block.category}
+                    <p className="font-display font-bold text-ink text-sm leading-snug">{block.title}</p>
+                    <p className="font-mono text-[9px] text-ink-3 mt-1 uppercase tracking-wider">
+                      {block.ip_id ? `IP-${block.ip_id.slice(-4).toUpperCase()}` : "IP ASSET"} · @{block.creator_name || block.creator_address.slice(0, 8)}
                     </p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="font-mono text-sm font-medium text-ink tabular">{block.price_ip} IP</span>
-                    <button
-                      onClick={() => remove(block.id)}
-                      aria-label="Remove"
-                      className="text-ink-3 hover:text-[oklch(0.55_0.18_25)] transition-colors text-xs p-1"
-                    >
-                      ✕
-                    </button>
+                    <span className="font-mono text-[11px] font-bold text-ink tabular">{block.price_ip} IP</span>
+                    <button onClick={() => remove(block.id)} className="font-mono text-[10px] text-ink-3 hover:text-ink transition-colors">✕</button>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Sticky summary */}
-            <div className="lg:sticky lg:top-24 bg-paper border border-rule rounded-2xl p-6 flex flex-col gap-4">
-              <div>
-                <p className="text-xs text-ink-3 uppercase tracking-widest font-medium mb-1">Total</p>
-                <p className="font-mono text-3xl font-semibold text-ink tabular">
-                  {total().toFixed(3)} <span className="text-ink-3 text-lg">IP</span>
+            <div className="lg:sticky lg:top-20 bg-paper border border-rule-faint p-5 flex flex-col gap-3">
+              <div className="border-b border-rule-faint pb-3">
+                <p className="font-mono text-[9px] uppercase tracking-widest text-ink-3 mb-1">Total</p>
+                <p className="font-mono text-2xl font-bold text-ink tabular">
+                  {(total() + fee).toFixed(3)} <span className="text-ink-3 text-sm">IP</span>
                 </p>
               </div>
-
-              <div className="border-t border-rule-faint pt-4 flex flex-col gap-1 text-xs text-ink-3">
-                <p>{items.length} license transaction{items.length > 1 ? "s" : ""}</p>
-                <p>Story routes royalties to each creator</p>
+              <div className="flex flex-col gap-1.5 text-[10px] font-mono text-ink-3">
+                <div className="flex justify-between">
+                  <span className="uppercase tracking-wider">Protocol Fee (2.5%)</span>
+                  <span className="tabular">{fee.toFixed(3)} IP</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="uppercase tracking-wider">Creator Royalties</span>
+                  <span>Included</span>
+                </div>
               </div>
 
               {error && (
-                <p className="text-sm text-[oklch(0.50_0.18_25)] bg-[oklch(0.97_0.03_25)] border border-[oklch(0.88_0.06_25)] rounded-xl px-4 py-3">
+                <p className="font-mono text-[10px] text-[oklch(0.70_0.14_25)] bg-[oklch(0.16_0.04_25)] border border-[oklch(0.28_0.06_25)] px-3 py-2">
                   {error}
                 </p>
               )}
-
-              {step && (
-                <p className="text-xs text-accent">{step}</p>
-              )}
+              {step && <p className="font-mono text-[10px] text-accent uppercase tracking-wider">{step}</p>}
 
               {!authenticated ? (
-                <button
-                  onClick={login}
-                  className="w-full py-3 bg-accent hover:bg-accent-hover text-paper rounded-xl font-medium text-sm transition-colors"
-                >
+                <button onClick={login} className="w-full py-3 bg-accent hover:bg-accent-hover text-canvas text-[10px] font-bold uppercase tracking-widest transition-colors">
                   Connect to purchase
                 </button>
               ) : (
                 <button
                   onClick={handlePurchase}
                   disabled={loading || !walletClient}
-                  className="w-full py-3 bg-accent hover:bg-accent-hover disabled:bg-rule text-paper disabled:text-ink-3 rounded-xl font-medium text-sm transition-colors"
+                  className="w-full py-3 bg-accent hover:bg-accent-hover disabled:bg-rule text-canvas disabled:text-ink-3 text-[10px] font-bold uppercase tracking-widest transition-colors"
                 >
-                  {loading
-                    ? step || "Processing…"
-                    : `Pay ${total().toFixed(3)} IP · Unlock ${items.length} block${items.length > 1 ? "s" : ""}`}
+                  {loading ? step || "Processing…" : "Mint Bundle License"}
                 </button>
               )}
-
-              {authenticated && !walletClient && (
-                <p className="text-ink-3 text-xs text-center">Wallet not connected — reload and reconnect</p>
-              )}
+              <p className="text-center font-mono text-[9px] text-ink-3 uppercase tracking-widest">(IP_0S)</p>
             </div>
 
           </div>

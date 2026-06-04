@@ -8,22 +8,16 @@ import { useRouter } from "next/navigation"
 const CATEGORIES = ["DeFi", "Trading", "Dev", "Research", "Growth", "Predictions"]
 const CONTENT_TYPES = ["markdown", "pdf", "video", "image", "text"] as const
 
-const inputClass =
-  "w-full bg-paper border border-rule rounded-xl px-4 py-2.5 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-accent transition-colors"
-
-const labelClass = "block text-xs font-medium text-ink-2 uppercase tracking-wider mb-1.5"
+const inputClass = "w-full bg-paper border border-rule-faint px-4 py-2.5 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-rule transition-colors font-mono"
+const labelClass = "block font-mono text-[10px] uppercase tracking-widest text-ink-3 mb-1.5"
 
 export default function CreatePage() {
   const { authenticated, user, login } = usePrivy()
   const router = useRouter()
 
   const [form, setForm] = useState({
-    title: "",
-    preview_text: "",
-    category: "DeFi",
-    price_ip: "0.1",
-    content_type: "markdown" as typeof CONTENT_TYPES[number],
-    creator_name: "",
+    title: "", preview_text: "", category: "DeFi",
+    price_ip: "0.1", content_type: "markdown" as typeof CONTENT_TYPES[number], creator_name: "",
   })
   const [content, setContent] = useState("")
   const [file, setFile] = useState<File | null>(null)
@@ -35,21 +29,17 @@ export default function CreatePage() {
     if (!authenticated || !user?.wallet?.address) return
     setLoading(true)
     setError("")
-
     try {
       const formData = new FormData()
       Object.entries(form).forEach(([k, v]) => formData.append(k, v))
       formData.append("creator_address", user.wallet.address)
-
       if (form.content_type === "markdown" || form.content_type === "text") {
         formData.append("content", content)
       } else if (file) {
         formData.append("file", file)
       }
-
       const res = await fetch("/api/upload", { method: "POST", body: formData })
       const data = await res.json()
-
       if (!res.ok) throw new Error(data.error || "Upload failed")
       router.push("/")
     } catch (err: unknown) {
@@ -64,12 +54,9 @@ export default function CreatePage() {
       <div className="min-h-screen bg-canvas">
         <Navbar />
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-          <p className="font-display text-2xl font-semibold text-ink">Publish your knowledge.</p>
-          <p className="text-ink-3 text-sm">Connect your wallet to create a block.</p>
-          <button
-            onClick={login}
-            className="mt-2 px-6 py-3 bg-accent hover:bg-accent-hover text-paper rounded-full font-medium text-sm transition-colors"
-          >
+          <h1 className="font-display italic text-3xl text-ink">Publish your knowledge.</h1>
+          <p className="font-mono text-[10px] text-ink-3 uppercase tracking-widest">Connect your wallet to create a block</p>
+          <button onClick={login} className="mt-2 px-6 py-2 border border-rule text-ink text-[11px] font-bold uppercase tracking-widest hover:border-ink transition-colors">
             Connect wallet
           </button>
         </div>
@@ -80,97 +67,54 @@ export default function CreatePage() {
   return (
     <div className="min-h-screen bg-canvas">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-6 py-10">
-
+      <main className="max-w-2xl mx-auto px-6 py-8">
         <div className="mb-8">
-          <p className="text-xs font-medium text-ink-3 tracking-widest uppercase mb-2">Creator</p>
-          <h1 className="font-display text-4xl font-semibold text-ink">New block</h1>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-ink-3 mb-1">Creator</p>
+          <h1 className="font-display italic text-3xl text-ink">New block</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
-          {/* Identity */}
-          <section className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4">
             <div>
               <label className={labelClass}>Your name</label>
-              <input
-                value={form.creator_name}
-                onChange={(e) => setForm({ ...form, creator_name: e.target.value })}
-                placeholder="Name or alias"
-                className={inputClass}
-              />
+              <input value={form.creator_name} onChange={(e) => setForm({ ...form, creator_name: e.target.value })} placeholder="name or alias" className={inputClass} />
             </div>
-
             <div>
               <label className={labelClass}>Title *</label>
-              <input
-                required
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                placeholder="e.g. How Uniswap V3 liquidity works"
-                className={inputClass}
-              />
+              <input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. How Uniswap V3 liquidity works" className={inputClass} />
             </div>
-
             <div>
-              <label className={labelClass}>
-                Preview <span className="normal-case font-normal text-ink-3 tracking-normal">— public teaser, hook the reader</span>
-              </label>
-              <textarea
-                required
-                rows={3}
-                value={form.preview_text}
-                onChange={(e) => setForm({ ...form, preview_text: e.target.value })}
-                placeholder="2–3 sentences that make someone want to buy this block…"
-                className={`${inputClass} resize-none`}
-              />
+              <label className={labelClass}>Preview — public teaser</label>
+              <textarea required rows={3} value={form.preview_text} onChange={(e) => setForm({ ...form, preview_text: e.target.value })} placeholder="2–3 sentences that make someone want to buy this…" className={`${inputClass} resize-none`} />
             </div>
-          </section>
+          </div>
 
           <div className="h-px bg-rule-faint" />
 
-          {/* Metadata */}
-          <section className="flex gap-4">
+          <div className="flex gap-4">
             <div className="flex-1">
               <label className={labelClass}>Category</label>
-              <select
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className={inputClass}
-              >
+              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass}>
                 {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
               </select>
             </div>
-
-            <div className="w-36">
+            <div className="w-32">
               <label className={labelClass}>Price (IP)</label>
-              <input
-                type="number"
-                min="0.01"
-                step="0.01"
-                value={form.price_ip}
-                onChange={(e) => setForm({ ...form, price_ip: e.target.value.replace(",", ".") })}
-                className={`${inputClass} font-mono tabular`}
-              />
+              <input type="number" min="0.01" step="0.01" value={form.price_ip} onChange={(e) => setForm({ ...form, price_ip: e.target.value.replace(",", ".") })} className={`${inputClass} tabular`} />
             </div>
-          </section>
+          </div>
 
           <div className="h-px bg-rule-faint" />
 
-          {/* Content */}
-          <section className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <div>
               <label className={labelClass}>Content type</label>
               <div className="flex gap-1.5 flex-wrap">
                 {CONTENT_TYPES.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setForm({ ...form, content_type: t })}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                      form.content_type === t
-                        ? "bg-ink text-paper"
-                        : "border border-rule text-ink-2 hover:text-ink"
+                  <button key={t} type="button" onClick={() => setForm({ ...form, content_type: t })}
+                    className={`px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest transition-colors border ${
+                      form.content_type === t ? "border-accent text-accent" : "border-rule-faint text-ink-3 hover:text-ink"
                     }`}
                   >
                     {t}
@@ -178,50 +122,27 @@ export default function CreatePage() {
                 ))}
               </div>
             </div>
-
             <div>
-              <label className={labelClass}>
-                Full content * <span className="normal-case font-normal text-ink-3 tracking-normal">— CDR-encrypted, only buyers see this</span>
-              </label>
+              <label className={labelClass}>Full content * — CDR-encrypted</label>
               {(form.content_type === "markdown" || form.content_type === "text") ? (
-                <textarea
-                  required
-                  rows={10}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder={
-                    form.content_type === "markdown"
-                      ? "Write in markdown…"
-                      : "Write your content…"
-                  }
-                  className={`${inputClass} resize-none font-mono text-xs leading-relaxed`}
-                />
+                <textarea required rows={10} value={content} onChange={(e) => setContent(e.target.value)} placeholder={form.content_type === "markdown" ? "Write in markdown…" : "Write your content…"} className={`${inputClass} resize-none text-xs leading-relaxed`} />
               ) : (
-                <input
-                  type="file"
-                  accept={
-                    form.content_type === "pdf" ? ".pdf" :
-                    form.content_type === "image" ? "image/*" :
-                    "video/*"
-                  }
+                <input type="file"
+                  accept={form.content_type === "pdf" ? ".pdf" : form.content_type === "image" ? "image/*" : "video/*"}
                   onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  className="w-full text-sm text-ink-2 file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border file:border-rule file:text-ink file:text-xs file:font-medium file:bg-canvas cursor-pointer"
+                  className="w-full text-xs text-ink-2 file:mr-3 file:py-1.5 file:px-4 file:border file:border-rule-faint file:text-ink file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:bg-transparent cursor-pointer"
                 />
               )}
             </div>
-          </section>
+          </div>
 
           {error && (
-            <p className="text-sm text-[oklch(0.50_0.18_25)] bg-[oklch(0.97_0.03_25)] border border-[oklch(0.88_0.06_25)] rounded-xl px-4 py-3">
+            <p className="font-mono text-[10px] text-[oklch(0.70_0.14_25)] bg-[oklch(0.16_0.04_25)] border border-[oklch(0.28_0.06_25)] px-3 py-2">
               {error}
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-accent hover:bg-accent-hover disabled:bg-rule text-paper disabled:text-ink-3 rounded-xl font-medium text-sm transition-colors"
-          >
+          <button type="submit" disabled={loading} className="w-full py-3 bg-accent hover:bg-accent-hover disabled:bg-rule text-canvas disabled:text-ink-3 text-[10px] font-bold uppercase tracking-widest transition-colors">
             {loading ? "Publishing to Story & CDR…" : "Publish block"}
           </button>
 

@@ -61,3 +61,20 @@ Story Protocol testnet. All tokens are test tokens.
 RPC: https://aeneid.storyrpc.io
 Chain ID: 1513
 Explorer: https://aeneid.storyscan.xyz
+
+## Revenue
+**Dec-11: Platform fee via commercialRevShare (Story PIL)**
+Platform takes 10% of every purchase by setting `commercialRevShare: 1000` (basis points) in PILFlavor.commercialUse().
+Story Protocol routes it automatically on-chain — no off-chain payment logic.
+Why: cleanest revenue model, fully trustless, shows Story's royalty mechanics in the pitch.
+Additional revenue: Featured slots (paid promo in feed), Creator Pro subscription (badge + analytics).
+
+## Auth
+**Dec-12: Privy instead of RainbowKit**
+Switched from RainbowKit to Privy (@privy-io/react-auth + @privy-io/wagmi).
+Why: supports email + social + embedded wallets — lower friction for non-crypto users in demo.
+
+## Purchase signing
+**Dec-13: Client-side Story tx for purchases**
+mintLicenseTokens is signed by the buyer's wallet (not platform wallet).
+Why: royalties go directly from buyer to creator on-chain, platform wallet doesn't need WIP tokens for purchases.

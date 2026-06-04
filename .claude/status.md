@@ -1,32 +1,30 @@
 # Project Status
 
 ## Product
-Composable Web3 Skill Blocks — "Spotify for Web3 knowledge"
+SkillChain — "TikTok for Web3 knowledge blocks"
 Hackathon: CDR Hackathon @ Story Protocol | Deadline: June 3, 2026
 Track: Best CDR Application ($1k + $1k runner-up)
+Repo: https://github.com/RamzesVII/SkillChain
 
 ## Current Phase
-Day 1 — Setup
+Day 5 of 7 — Polish + Seed + Deploy
 
 ## Done
-- [x] Next.js 14 project exists
-- [x] Dependencies installed: @piplabs/cdr-sdk, @story-protocol/core-sdk, @rainbow-me/rainbowkit, wagmi, viem, @supabase/supabase-js
-- [x] .env.local.example created
-- [x] Project directories created: lib/, app/api/, components/
+- [x] Full stack setup: Next.js 14, Privy auth, wagmi, Supabase, Tailwind v4
+- [x] Creator upload flow: Story IP registration + CDR vault + Supabase save
+- [x] Discovery feed with category filters (DeFi, Trading, Dev, Research, Growth, Predictions)
+- [x] Bundle builder (Zustand store, sticky summary panel)
+- [x] Purchase flow: client-side Story mintLicenseTokens (user wallet signs)
+- [x] /api/record-purchase: saves tx result to Supabase
+- [x] CDR decrypt: ContentViewer with buyer wallet (markdown/pdf/video/image/text)
+- [x] Design system: Tailwind v4 @theme tokens, Fraunces serif, masonry layout
+- [x] Playwright MCP connected for browser testing
+- [x] ROADMAP.md with revenue model
 
 ## In Progress
-- [ ] Supabase: create project + tables + storage bucket
-- [ ] Pinata: get API key for IPFS
-- [ ] WalletConnect: get project ID
-- [ ] Fill .env.local
-
-## Next Up
-- [ ] lib/supabase.ts
-- [ ] lib/cdr.ts (CDRClient wrapper)
-- [ ] lib/story.ts (Story SDK wrapper)
-- [ ] lib/providers.tsx (RainbowKit + wagmi)
-- [ ] CDR uploadFile test with GatewayProvider + Pinata
-- [ ] Wallet connection working
+- [ ] Seed 4-5 real Web3 demo blocks
+- [ ] Deploy to Vercel
 
 ## Blockers
-- Waiting for: Pinata API key, Supabase URL+keys, WalletConnect project ID
+- Platform wallet needs IP tokens on Aeneid to pay minting fees for demo purchases
+- Faucet: https://faucet.story.foundation

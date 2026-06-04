@@ -22,6 +22,7 @@ export default function CreatePage() {
   const [content, setContent] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
+  const [step, setStep] = useState("")
   const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,6 +30,7 @@ export default function CreatePage() {
     if (!authenticated || !user?.wallet?.address) return
     setLoading(true)
     setError("")
+    setStep("Registering on Story Protocol...")
     try {
       const formData = new FormData()
       Object.entries(form).forEach(([k, v]) => formData.append(k, v))
@@ -38,14 +40,20 @@ export default function CreatePage() {
       } else if (file) {
         formData.append("file", file)
       }
+
+      // Step 1 takes ~20s (Story tx), step 2 takes ~10s (CDR)
+      const timer = setTimeout(() => setStep("Encrypting with CDR..."), 22000)
       const res = await fetch("/api/upload", { method: "POST", body: formData })
+      clearTimeout(timer)
+
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Upload failed")
-      router.push("/")
+      router.push("/discover")
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong")
     } finally {
       setLoading(false)
+      setStep("")
     }
   }
 
@@ -143,7 +151,7 @@ export default function CreatePage() {
           )}
 
           <button type="submit" disabled={loading} className="w-full py-3 bg-accent hover:bg-accent-hover disabled:bg-rule text-canvas disabled:text-ink-3 text-[10px] font-bold uppercase tracking-widest transition-colors">
-            {loading ? "Publishing to Story & CDR…" : "Publish block"}
+            {loading ? (step || "Publishing to Story & CDR…") : "Publish block"}
           </button>
 
         </form>

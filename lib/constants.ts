@@ -8,4 +8,4 @@ export const CDR_CONTRACTS = {
 
 export const STORY_CDR_API_URL = process.env.STORY_CDR_API_URL || "http://172.192.41.96:1317"
 export const STORY_RPC_URL = process.env.STORY_RPC_URL || "https://aeneid.storyrpc.io"
-export const AENEID_CHAIN_ID = 1513
+export const AENEID_CHAIN_ID = 1315

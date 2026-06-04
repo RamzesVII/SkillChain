@@ -24,6 +24,12 @@ export default function CreatePage() {
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState("")
   const [error, setError] = useState("")
+  const [toast, setToast] = useState("")
+
+  const showToast = (msg: string) => {
+    setToast(msg)
+    setTimeout(() => setToast(""), 3500)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,7 +54,8 @@ export default function CreatePage() {
 
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Upload failed")
-      router.push("/discover")
+      showToast("✓ Block registered on Story Protocol")
+      setTimeout(() => router.push("/discover"), 1500)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong")
     } finally {
@@ -75,6 +82,29 @@ export default function CreatePage() {
   return (
     <div className="min-h-screen bg-canvas">
       <Navbar />
+
+      {/* Toast notification */}
+      {toast && (
+        <div style={{
+          position: "fixed", bottom: 30, left: "50%", transform: "translateX(-50%)",
+          zIndex: 80, background: "var(--grad)", color: "#fff",
+          fontFamily: "var(--font-geist-mono)", fontSize: 11, fontWeight: 700,
+          letterSpacing: 1.5, textTransform: "uppercase",
+          padding: "14px 24px", borderRadius: 6,
+          boxShadow: "0 16px 40px -12px oklch(0.55 0.2 340 / 0.9)",
+          animation: "toastin 0.35s cubic-bezier(.2,.8,.25,1)",
+          whiteSpace: "nowrap",
+        }}>
+          {toast}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes toastin {
+          from { opacity: 0; transform: translate(-50%, 16px); }
+          to   { opacity: 1; transform: translateX(-50%); }
+        }
+      `}</style>
       <main className="max-w-2xl mx-auto px-6 py-8">
         <div className="mb-8">
           <p className="font-mono text-[9px] uppercase tracking-widest text-ink-3 mb-1">Creator</p>

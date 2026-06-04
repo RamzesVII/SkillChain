@@ -1,36 +1,54 @@
 "use client"
 
-import { usePrivy } from "@privy-io/react-auth"
-import { useWalletClient, usePublicClient } from "wagmi"
+import Link from "next/link"
+import { usePrivy, useWallets } from "@privy-io/react-auth"
 import { Navbar } from "@/components/Navbar"
 import { useBundleStore } from "@/lib/bundle"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { StoryClient } from "@story-protocol/core-sdk"
-import { parseEther } from "viem"
+import { custom, parseEther, type Address } from "viem"
+import { AENEID_CHAIN_ID } from "@/lib/constants"
 
 export default function BundlePage() {
   const { authenticated, user, login } = usePrivy()
-  const { data: walletClient } = useWalletClient()
-  usePublicClient()
+  const { wallets, ready: walletsReady } = useWallets()
   const { items, remove, clear, total } = useBundleStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [step, setStep] = useState("")
   const router = useRouter()
 
+  const getStoryClient = async (account: Address) => {
+    const wallet = wallets.find((w) => w.address.toLowerCase() === account.toLowerCase())
+    if (!wallet) {
+      throw new Error("Wallet signer is not ready. Reconnect your wallet and try again.")
+    }
+
+    if (wallet.chainId !== `eip155:${AENEID_CHAIN_ID}`) {
+      await wallet.switchChain(AENEID_CHAIN_ID)
+    }
+
+    const provider = await wallet.getEthereumProvider()
+    return StoryClient.newClient({
+      chainId: "aeneid",
+      transport: custom(provider),
+      account,
+    })
+  }
+
   const handlePurchase = async () => {
-    if (!authenticated || !user?.wallet?.address || !walletClient) return
+    if (!authenticated || !user?.wallet?.address) {
+      login()
+      return
+    }
     setLoading(true)
     setError("")
+    setStep("Preparing wallet…")
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const storyClient = StoryClient.newClient({
-        chainId: "aeneid",
-        transport: walletClient.transport as any,
-        account: walletClient.account,
-      })
+      const account = user.wallet.address as Address
+      const storyClient = await getStoryClient(account)
 
       const recorded: { block_id: string; license_token_id: string; tx_hash: string }[] = []
 
@@ -45,7 +63,7 @@ export default function BundlePage() {
         const result = await storyClient.license.mintLicenseTokens({
           licensorIpId: block.ip_id as `0x${string}`,
           licenseTermsId: BigInt(block.license_terms_id),
-          receiver: user.wallet.address as `0x${string}`,
+          receiver: account,
           amount: 1,
           maxMintingFee: parseEther(block.price_ip),
           txOptions: {},
@@ -64,7 +82,7 @@ export default function BundlePage() {
       const res = await fetch("/api/record-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ purchases: recorded, buyer_address: user.wallet.address }),
+        body: JSON.stringify({ purchases: recorded, buyer_address: account }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Failed to record purchase")
@@ -95,9 +113,9 @@ export default function BundlePage() {
           <div className="text-center py-32">
             <h2 className="font-display italic text-2xl text-ink mb-2">Bundle is empty.</h2>
             <p className="font-mono text-[10px] text-ink-3 uppercase tracking-widest mb-6">Add blocks to get started</p>
-            <a href="/" className="px-6 py-2 border border-rule text-ink text-[11px] font-bold uppercase tracking-widest hover:border-ink transition-colors">
+            <Link href="/" className="px-6 py-2 border border-rule text-ink text-[11px] font-bold uppercase tracking-widest hover:border-ink transition-colors">
               Browse blocks
-            </a>
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
@@ -154,10 +172,10 @@ export default function BundlePage() {
               ) : (
                 <button
                   onClick={handlePurchase}
-                  disabled={loading || !walletClient}
+                  disabled={loading || !walletsReady}
                   className="w-full py-3 bg-accent hover:bg-accent-hover disabled:bg-rule text-canvas disabled:text-ink-3 text-[10px] font-bold uppercase tracking-widest transition-colors"
                 >
-                  {loading ? step || "Processing…" : "Mint Bundle License"}
+                  {loading ? step || "Processing…" : !walletsReady ? "Preparing wallet…" : "Mint Bundle License"}
                 </button>
               )}
               <p className="text-center font-mono text-[9px] text-ink-3 uppercase tracking-widest">(IP_0S)</p>

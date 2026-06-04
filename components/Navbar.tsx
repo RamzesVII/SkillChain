@@ -5,7 +5,6 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { WalletButton } from "./WalletButton"
 import { useBundleStore } from "@/lib/bundle"
-import { BundleDrawer } from "./BundleDrawer"
 
 const NAV = [
   { label: "Discover", href: "/discover" },
@@ -68,7 +67,6 @@ export function Navbar() {
             </span>
           )}
         </button>
-        <BundleDrawer />
       </div>
     </nav>
   )

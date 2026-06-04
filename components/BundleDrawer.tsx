@@ -25,29 +25,30 @@ export function BundleDrawer() {
 
   return (
     <>
-      {/* Scrim */}
-      {isOpen && (
-        <div
-          onClick={closeDrawer}
-          style={{
-            position: "fixed", inset: 0, zIndex: 48,
-            background: "oklch(0 0 0 / 0.55)",
-            backdropFilter: "blur(2px)",
-            animation: "fadein 0.25s ease",
-          }}
-        />
-      )}
+      {/* Scrim — z-index 50 per design, purple-tinted dark */}
+      <div
+        onClick={closeDrawer}
+        style={{
+          position: "fixed", inset: 0, zIndex: 50,
+          background: "oklch(0.05 0.01 320 / 0.6)",
+          backdropFilter: "blur(3px)",
+          pointerEvents: isOpen ? "auto" : "none",
+          opacity: isOpen ? 1 : 0,
+          transition: "opacity 0.25s ease",
+        }}
+      />
 
-      {/* Drawer */}
+      {/* Drawer — z-index 60 per design */}
       <div style={{
-        position: "fixed", top: 0, right: 0, zIndex: 49,
-        width: "min(480px, 100vw)",
+        position: "fixed", top: 0, right: 0, zIndex: 60,
+        width: 420, maxWidth: "92vw",
         height: "100dvh",
-        background: "var(--bg)",
+        background: "linear-gradient(180deg, oklch(0.155 0.014 320), oklch(0.115 0.013 320))",
         borderLeft: "1px solid var(--line)",
+        boxShadow: "-30px 0 70px -30px rgba(0,0,0,0.8)",
         display: "flex", flexDirection: "column",
         transform: isOpen ? "translateX(0)" : "translateX(100%)",
-        transition: "transform 0.35s cubic-bezier(.3,.7,.3,1)",
+        transition: "transform 0.4s cubic-bezier(.2,.8,.25,1)",
         willChange: "transform",
         overflow: "hidden",
       }}>
@@ -55,7 +56,7 @@ export function BundleDrawer() {
         {/* Header */}
         <div style={{ padding: "28px 28px 20px", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
-            <h2 style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 500, fontSize: 36, lineHeight: 1, letterSpacing: "-0.5px", color: "var(--ink)", margin: 0 }}>
+            <h2 style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 500, fontSize: 26, lineHeight: 1, letterSpacing: "-0.4px", color: "var(--ink)", margin: 0 }}>
               Your Bundle
             </h2>
             <p style={{ fontFamily: "var(--font-geist-mono)", fontSize: 10, letterSpacing: 2.5, textTransform: "uppercase", color: "var(--ink-3)", marginTop: 8 }}>
@@ -117,7 +118,7 @@ export function BundleDrawer() {
         </div>
 
         {/* Footer */}
-        <div style={{ padding: "20px 28px", borderTop: "1px solid var(--line)", background: "var(--bg)" }}>
+        <div style={{ padding: "22px 26px", borderTop: "1px solid var(--line)", background: "oklch(0.10 0.013 320 / 0.7)" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--font-geist-mono)", fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase" }}>
               <span style={{ color: "var(--ink-3)" }}>Subtotal</span>
@@ -145,9 +146,6 @@ export function BundleDrawer() {
         </div>
       </div>
 
-      <style>{`
-        @keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
-      `}</style>
     </>
   )
 }

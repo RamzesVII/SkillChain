@@ -107,7 +107,7 @@ export function BlockCard({ block, index = 1, variant = "normal" }: {
         {/* FRONT */}
         <div className="flip-face flip-front">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span className="grad-text" style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 500, fontSize: 27, lineHeight: 1 }}>
+            <span className="grad-text" style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 500, fontSize: 27, lineHeight: 1, paddingLeft: 3, display: "inline-block" }}>
               {idxStr}
             </span>
             <span style={{ fontFamily: "var(--font-geist-mono)", fontSize: 9, letterSpacing: 2, color: "var(--ink-3)", border: "1px solid var(--line)", padding: "3px 7px", borderRadius: 3 }}>

@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useWalletClient, usePublicClient } from "wagmi"
 import { CDRClient } from "@piplabs/cdr-sdk"
 import { encodeAbiParameters } from "viem"
-import { STORY_CDR_API_URL } from "@/lib/constants"
 import type { Block, Purchase } from "@/lib/supabase"
 import { createClient } from "@supabase/supabase-js"
 
@@ -26,7 +25,7 @@ export function ContentViewer({ purchase }: Props) {
       if (!block.cdr_uuid) throw new Error("No CDR vault for this block")
 
       const cdrClient = new CDRClient({
-        network: "testnet", publicClient, walletClient, apiUrl: STORY_CDR_API_URL,
+        network: "testnet", publicClient, walletClient, apiUrl: "/api/cdr",
       })
 
       const supabase = createClient(

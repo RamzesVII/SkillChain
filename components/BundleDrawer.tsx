@@ -85,30 +85,35 @@ export function BundleDrawer() {
               </p>
             </div>
           ) : (
-            <div>
-              {items.map((block, i) => {
-                const ip = block.ip_id ? `IP-${block.ip_id.slice(-4).toUpperCase()}` : "IP ASSET"
+            <div style={{ padding: "14px 26px" }}>
+              {items.map((block) => {
+                const TYPE_LABELS: Record<string, string> = { markdown: "MD", text: "TXT", pdf: "PDF", video: "VID", image: "IMG" }
+                const LICENSE_LABELS: Record<string, string> = { pdf: "COMMERCIAL-USE", video: "COMMERCIAL-USE", image: "REMIX-ONLY", markdown: "READ-ONLY", text: "READ-ONLY" }
+                const typeLabel = TYPE_LABELS[block.content_type] ?? block.content_type.toUpperCase()
+                const licLabel = LICENSE_LABELS[block.content_type] ?? "READ-ONLY"
+                const creator = block.creator_name || block.creator_address.slice(0, 8)
                 return (
-                  <div key={block.id} style={{ padding: "16px 28px", borderBottom: "1px solid var(--line-soft)", display: "flex", alignItems: "flex-start", gap: 12 }}>
-                    <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 20, color: "var(--ink-3)", flexShrink: 0, lineHeight: 1, paddingTop: 2 }}>
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 13, fontWeight: 500, color: "var(--ink)", lineHeight: 1.35, margin: 0 }}>{block.title}</p>
-                      <p style={{ fontFamily: "var(--font-geist-mono)", fontSize: 9, color: "var(--ink-3)", marginTop: 4, letterSpacing: 1.5, textTransform: "uppercase" }}>
-                        {ip} · @{block.creator_name || block.creator_address.slice(0, 6)}
-                      </p>
-                    </div>
-                    <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontFamily: "var(--font-geist-mono)", fontSize: 12, color: "var(--ink-2)", fontVariantNumeric: "tabular-nums" }}>
-                        {block.price_ip} IP
-                      </span>
+                  <div key={block.id} style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "10px 14px", padding: "15px 0", borderBottom: "1px solid var(--line-soft)", alignItems: "start" }}>
+                    {/* Left: title + meta + remove */}
+                    <div>
+                      <div style={{ fontFamily: "var(--font-fraunces)", fontWeight: 600, fontSize: 15, lineHeight: 1.18, letterSpacing: "-0.2px", color: "var(--ink)" }}>
+                        {block.title}
+                      </div>
+                      <div style={{ fontFamily: "var(--font-geist-mono)", fontSize: 9.5, letterSpacing: 1, color: "var(--ink-3)", textTransform: "uppercase", marginTop: 5 }}>
+                        @{creator} · {typeLabel} · {licLabel}
+                      </div>
                       <button
                         onClick={() => remove(block.id)}
-                        style={{ fontFamily: "var(--font-geist-mono)", fontSize: 11, color: "var(--ink-3)", background: "none", border: "none", cursor: "pointer", padding: "2px 4px", lineHeight: 1 }}
-                        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = "var(--ink)")}
+                        style={{ fontFamily: "var(--font-geist-mono)", fontSize: 9, letterSpacing: 1, textTransform: "uppercase", color: "var(--ink-3)", background: "none", border: "none", cursor: "pointer", padding: "4px 0 0", display: "block", transition: "color .15s" }}
+                        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = "oklch(0.7 0.18 25)")}
                         onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = "var(--ink-3)")}
-                      >✕</button>
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    {/* Right: price */}
+                    <div style={{ fontFamily: "var(--font-geist-mono)", fontSize: 14, fontWeight: 600, fontVariantNumeric: "tabular-nums", textAlign: "right", color: "var(--ink)" }}>
+                      {block.price_ip}
                     </div>
                   </div>
                 )
@@ -141,7 +146,7 @@ export function BundleDrawer() {
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 32px -8px oklch(0.55 0.2 340 / 0.9)" }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 24px -8px oklch(0.55 0.2 340 / 0.8)" }}
           >
-            Unlock Blocks
+            Unlock {items.length > 0 ? `${items.length} ` : ""}Block{items.length === 1 ? "" : "s"}
           </button>
         </div>
       </div>

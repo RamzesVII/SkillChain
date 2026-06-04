@@ -4,6 +4,8 @@ import { createAdminClient } from "@/lib/supabase"
 import { registerBlock } from "@/lib/story"
 import { uploadBlockContent } from "@/lib/cdr"
 
+export const maxDuration = 60 // Story tx needs ~20-30s to confirm
+
 export async function POST(req: NextRequest) {
   try {
     await initWasm()
@@ -33,18 +35,22 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Register IP on Story Protocol
+    console.log("[upload] Step 1: Registering on Story Protocol...")
     const { ipId, licenseTermsId, txHash: storyTx } = await registerBlock({
       title,
       creatorAddress: creator_address as `0x${string}`,
       priceIp: price_ip,
     })
+    console.log("[upload] Story registered:", ipId)
 
-    // 2. Upload encrypted content to CDR (Supabase storage)
+    // 2. Upload encrypted content to CDR
+    console.log("[upload] Step 2: Uploading to CDR...", process.env.STORY_CDR_API_URL)
     const { uuid } = await uploadBlockContent({
       content: contentBytes,
       ipId,
       ownerAddress: creator_address as `0x${string}`,
     })
+    console.log("[upload] CDR uuid:", uuid)
 
     // 3. Save to Supabase
     const supabase = createAdminClient()

@@ -54,8 +54,11 @@ export function BlockCard({ block, index = 1, variant = "normal" }: {
   const creator = block.creator_name || `${block.creator_address.slice(0, 8)}…`
   const idxStr = String(index).padStart(2, "0")
 
+  const isRegistered = !!block.ip_id && !!block.license_terms_id
+
   const toggle = (e: React.MouseEvent) => {
     e.stopPropagation()
+    if (!isRegistered) return
     inBundle ? remove(block.id) : add(block)
   }
 

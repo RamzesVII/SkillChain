@@ -178,7 +178,6 @@ export default function BundlePage() {
                   {loading ? step || "Processing…" : !walletsReady ? "Preparing wallet…" : "Mint Bundle License"}
                 </button>
               )}
-              <p className="text-center font-mono text-[9px] text-ink-3 uppercase tracking-widest">(IP_0S)</p>
             </div>
 
           </div>

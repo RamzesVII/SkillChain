@@ -5,6 +5,7 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { WalletButton } from "./WalletButton"
 import { useBundleStore } from "@/lib/bundle"
+import { BundleDrawer } from "./BundleDrawer"
 
 const NAV = [
   { label: "Discover", href: "/discover" },
@@ -14,7 +15,7 @@ const NAV = [
 
 export function Navbar() {
   const pathname = usePathname()
-  const { items } = useBundleStore()
+  const { items, toggleDrawer } = useBundleStore()
 
   return (
     <nav style={{ display: "flex", alignItems: "center", gap: 30, padding: "0 40px", height: 58, borderBottom: "1px solid var(--line)", position: "sticky", top: 0, zIndex: 40, background: "oklch(0.105 0.013 320 / 0.78)", backdropFilter: "blur(14px)" }}>
@@ -53,10 +54,10 @@ export function Navbar() {
       <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 14 }}>
         <WalletButton />
 
-        {/* Bundle button */}
-        <Link
-          href="/bundle"
-          style={{ position: "relative", background: "var(--grad)", color: "#fff", border: "none", borderRadius: 5, padding: "10px 16px", fontFamily: "var(--font-geist-mono)", fontSize: 10.5, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 6px 20px -8px oklch(0.55 0.2 340 / 0.8)", transition: "transform .15s, box-shadow .15s", textDecoration: "none" }}
+        {/* Bundle button → opens drawer */}
+        <button
+          onClick={toggleDrawer}
+          style={{ position: "relative", background: "var(--grad)", color: "#fff", border: "none", borderRadius: 5, padding: "10px 16px", fontFamily: "var(--font-geist-mono)", fontSize: 10.5, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 6px 20px -8px oklch(0.55 0.2 340 / 0.8)", transition: "transform .15s, box-shadow .15s" }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 10px 26px -8px oklch(0.55 0.2 340 / 0.9)" }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 20px -8px oklch(0.55 0.2 340 / 0.8)" }}
         >
@@ -66,7 +67,8 @@ export function Navbar() {
               {items.length}
             </span>
           )}
-        </Link>
+        </button>
+        <BundleDrawer />
       </div>
     </nav>
   )

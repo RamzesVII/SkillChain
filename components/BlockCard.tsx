@@ -102,8 +102,8 @@ export function BlockCard({ block, index = 1, variant = "normal" }: {
   const showPreview = variant === "wide" || variant === "tall"
 
   return (
-    <div className="flip-card" style={{ minHeight: 236 }}>
-      <div className="flip-inner">
+    <div className="flip-card" style={{ height: "100%", minHeight: 236 }}>
+      <div className="flip-inner" style={{ height: "100%", minHeight: 236 }}>
         {/* FRONT */}
         <div className="flip-face flip-front">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>

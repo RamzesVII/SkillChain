@@ -1,7 +1,5 @@
 import { createAdminClient } from "@/lib/supabase"
 import { BlockCard } from "@/components/BlockCard"
-import { BundleSidebar } from "@/components/BundleSidebar"
-import { BundleBar } from "@/components/BundleBar"
 import { Navbar } from "@/components/Navbar"
 import { Ticker } from "@/components/Ticker"
 import type { Block } from "@/lib/supabase"
@@ -22,7 +20,14 @@ export default async function DiscoverPage({
   }
 
   const { data: blocks } = await query
-  const items = (blocks ?? []) as Block[]
+  // Sort: video first (best for featured 2×2), then image, then rest by price desc
+  const typeOrder: Record<string, number> = { video: 0, image: 1, pdf: 2, markdown: 3, text: 4 }
+  const items = ((blocks ?? []) as Block[]).sort((a, b) => {
+    const ta = typeOrder[a.content_type] ?? 5
+    const tb = typeOrder[b.content_type] ?? 5
+    if (ta !== tb) return ta - tb
+    return parseFloat(b.price_ip) - parseFloat(a.price_ip)
+  })
   const active = category ?? "All"
 
   // Stats (all blocks, not filtered)
@@ -35,9 +40,8 @@ export default async function DiscoverPage({
       <Navbar />
       <Ticker blocks={items.slice(0, 8)} />
 
-      <div className="h-[calc(100vh-58px-36px)] flex">
-        {/* Main content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+      <div style={{ minHeight: "calc(100vh - 94px)" }}>
+        <div className="flex flex-col">
 
           {/* Page header */}
           <div style={{ maxWidth: 1480, margin: "0 auto", width: "100%", padding: "34px 40px 0" }}>
@@ -85,7 +89,7 @@ export default async function DiscoverPage({
           </div>
 
           {/* Grid */}
-          <div className="flex-1 overflow-y-auto pb-24 lg:pb-6" style={{ maxWidth: 1480, margin: "0 auto", width: "100%", padding: "0 40px 120px" }}>
+          <div style={{ maxWidth: 1480, margin: "0 auto", width: "100%", padding: "0 40px 120px" }}>
             {items.length === 0 ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, gap: 12, textAlign: "center" }}>
                 <h2 style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 24, color: "var(--ink)" }}>Nothing here yet.</h2>
@@ -102,15 +106,6 @@ export default async function DiscoverPage({
           </div>
         </div>
 
-        {/* Bundle sidebar desktop */}
-        <aside className="hidden lg:flex flex-col w-80 shrink-0 border-l overflow-y-auto" style={{ borderColor: "var(--line-soft)" }}>
-          <BundleSidebar />
-        </aside>
-      </div>
-
-      {/* Mobile bundle bar */}
-      <div className="lg:hidden">
-        <BundleBar />
       </div>
     </div>
   )
@@ -119,31 +114,35 @@ export default async function DiscoverPage({
 function BentoGrid({ blocks }: { blocks: Block[] }) {
   if (blocks.length === 0) return null
 
-  const [featured, ...rest] = blocks
+  // Featured = first video block (most expensive by query sort); fall back to first
+  const isTall = (b: Block) => b.content_type === "video" || b.content_type === "image"
+  const featIdx = blocks.findIndex(b => b.content_type === "video")
+  const featuredBlock = featIdx >= 0 ? blocks[featIdx] : blocks[0]
+  const remaining = blocks.filter(b => b.id !== featuredBlock.id)
 
-  // Assign bento variants
-  const variants: Record<string, "tall" | "wide" | "normal"> = {}
+  // Put normal cards before tall to fill the 2×2 space right of featured first
+  const normalBlocks = remaining.filter(b => !isTall(b))
+  const tallBlocks = remaining.filter(b => isTall(b))
+  const rest = [...normalBlocks, ...tallBlocks]
+
+  // Assign tall variant to video/image blocks (up to 3)
+  const variants: Record<string, "tall" | "normal"> = {}
   let tallCount = 0
   for (const b of rest) {
-    if ((b.content_type === "video" || b.content_type === "image") && tallCount < 3) {
+    if (isTall(b) && tallCount < 3) {
       variants[b.id] = "tall"
       tallCount++
-    }
-  }
-  // First 2 text blocks that aren't already tall → wide
-  let wideCount = 0
-  for (const b of rest) {
-    if (!variants[b.id] && wideCount < 2) {
-      variants[b.id] = "wide"
-      wideCount++
     }
   }
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, gridAutoRows: 236, gridAutoFlow: "dense" }}>
-      {/* Featured card */}
-      <div style={{ gridColumn: "span 2", gridRow: "span 2" }} className="card-enter" key={featured.id}>
-        <BlockCard block={featured} index={1} variant="feat" />
+      {/* Featured card — 2×2 */}
+      <div
+        className="card-enter"
+        style={{ gridColumn: "span 2", gridRow: "span 2", height: "100%" }}
+      >
+        <BlockCard block={featuredBlock} index={1} variant="feat" />
       </div>
 
       {/* Rest */}
@@ -154,9 +153,10 @@ function BentoGrid({ blocks }: { blocks: Block[] }) {
             key={block.id}
             className="card-enter"
             style={{
-              gridColumn: v === "wide" ? "span 2" : "span 1",
+              gridColumn: "span 1",
               gridRow: v === "tall" ? "span 2" : "span 1",
               animationDelay: `${(i + 1) * 0.05}s`,
+              height: "100%",
             }}
           >
             <BlockCard block={block} index={i + 2} variant={v} />

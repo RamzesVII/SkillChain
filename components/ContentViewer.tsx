@@ -2,12 +2,19 @@
 
 import { useState } from "react"
 import { useWalletClient, usePublicClient } from "wagmi"
-import { CDRClient } from "@piplabs/cdr-sdk"
+import { CDRClient, initWasm } from "@piplabs/cdr-sdk"
 import { encodeAbiParameters } from "viem"
 import type { Block, Purchase } from "@/lib/supabase"
 import { createClient } from "@supabase/supabase-js"
 
 type Props = { purchase: Purchase & { blocks: Block } }
+
+let wasmReady: Promise<void> | null = null
+
+function ensureWasmReady() {
+  wasmReady ??= initWasm()
+  return wasmReady
+}
 
 export function ContentViewer({ purchase }: Props) {
   const { data: walletClient } = useWalletClient()
@@ -23,6 +30,8 @@ export function ContentViewer({ purchase }: Props) {
     try {
       const block = purchase.blocks
       if (!block.cdr_uuid) throw new Error("No CDR vault for this block")
+
+      await ensureWasmReady()
 
       const cdrClient = new CDRClient({
         network: "testnet", publicClient, walletClient, apiUrl: "/api/cdr",

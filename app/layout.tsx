@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/lib/providers";
 import { BundleDrawer } from "@/components/BundleDrawer";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -39,6 +40,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <BundleDrawer />
+          <Analytics />
         </Providers>
       </body>
     </html>
